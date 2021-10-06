@@ -1,23 +1,13 @@
 import React, { useMemo } from 'react';
-import { useTable } from 'react-table';
+import { useTable, useRowSelect } from 'react-table';
 import MOCK_DATA from './MOCK_DATA.json';
 import { COLUMNS } from './columns';
 import './table.css';
+import { CheckBox } from './CheckBox';
 
-export const BasicTable = () => {
+export const RowSelection = () => {
 	const columns = useMemo(() => COLUMNS, []);
 	const data = useMemo(() => MOCK_DATA, []);
-	//STEP 1: GET THE DATA(MOCK DATA, DATABASE ...)
-	//STEP 2: DEFINE THE COLUMN YOU WANT TO SHOW TO USERS
-
-	// STEP 3: CREATE AN INSTANCE OF THE TABLE
-	/* const tableInstance = useTable({
-		columns,
-		data,
-	});
-
-	const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-		tableInstance; */
 
 	const {
 		getTableProps,
@@ -26,10 +16,32 @@ export const BasicTable = () => {
 		footerGroups,
 		rows,
 		prepareRow,
-	} = useTable({
-		columns,
-		data,
-	});
+		selectedFlatRows,
+	} = useTable(
+		{
+			columns,
+			data,
+		},
+		useRowSelect,
+		(hooks) => {
+			hooks.visibleColumns.push((columns) => {
+				return [
+					{
+						id: 'selection',
+						Header: ({ getToggleAllRowsSelectedProps }) => (
+							<CheckBox {...getToggleAllRowsSelectedProps()} />
+						),
+						Cell: ({ row }) => (
+							<CheckBox {...row.getToggleRowSelectedProps()} />
+						),
+					},
+					...columns,
+				];
+			});
+		}
+	);
+
+	const firstPageRows = rows.slice(0, 10);
 
 	return (
 		// STEP 4: DEFINE A BASIC STRUCTURE USING HTML
@@ -46,7 +58,7 @@ export const BasicTable = () => {
 				</thead>
 
 				<tbody {...getTableBodyProps()}>
-					{rows.map((row) => {
+					{firstPageRows.map((row) => {
 						prepareRow(row);
 						return (
 							<tr {...row.getRowProps()}>
@@ -69,6 +81,17 @@ export const BasicTable = () => {
 					))}
 				</tfoot>
 			</table>
+			<pre>
+				<code>
+					{JSON.stringify(
+						{
+							selectedFlatRows: selectedFlatRows.map((row) => row.original),
+						},
+						null,
+						2
+					)}
+				</code>
+			</pre>
 		</React.Fragment>
 	);
 };

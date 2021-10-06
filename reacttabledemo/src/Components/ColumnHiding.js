@@ -3,21 +3,11 @@ import { useTable } from 'react-table';
 import MOCK_DATA from './MOCK_DATA.json';
 import { COLUMNS } from './columns';
 import './table.css';
+import { CheckBox } from './CheckBox';
 
-export const BasicTable = () => {
+export const ColumnHiding = () => {
 	const columns = useMemo(() => COLUMNS, []);
 	const data = useMemo(() => MOCK_DATA, []);
-	//STEP 1: GET THE DATA(MOCK DATA, DATABASE ...)
-	//STEP 2: DEFINE THE COLUMN YOU WANT TO SHOW TO USERS
-
-	// STEP 3: CREATE AN INSTANCE OF THE TABLE
-	/* const tableInstance = useTable({
-		columns,
-		data,
-	});
-
-	const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-		tableInstance; */
 
 	const {
 		getTableProps,
@@ -26,6 +16,8 @@ export const BasicTable = () => {
 		footerGroups,
 		rows,
 		prepareRow,
+		allColumns,
+		getToggleHideAllColumnsProps,
 	} = useTable({
 		columns,
 		data,
@@ -34,6 +26,19 @@ export const BasicTable = () => {
 	return (
 		// STEP 4: DEFINE A BASIC STRUCTURE USING HTML
 		<React.Fragment>
+			<div>
+				<div>
+					<CheckBox {...getToggleHideAllColumnsProps()} /> Toggle All
+				</div>
+				{allColumns.map((column) => (
+					<div key={column.id}>
+						<label>
+							<input type="checkbox" {...column.getToggleHiddenProps()} />
+							{column.Header}
+						</label>
+					</div>
+				))}
+			</div>
 			<table {...getTableProps()}>
 				<thead>
 					{headerGroups.map((headerGroup) => (

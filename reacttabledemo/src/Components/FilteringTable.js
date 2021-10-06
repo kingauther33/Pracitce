@@ -1,23 +1,20 @@
 import React, { useMemo } from 'react';
-import { useTable } from 'react-table';
+import { useTable, useGlobalFilter, useFilters } from 'react-table';
 import MOCK_DATA from './MOCK_DATA.json';
 import { COLUMNS } from './columns';
 import './table.css';
+import { GlobalFilter } from './GlobalFilter';
+import { ColumnFilter } from './ColumnFilter';
 
-export const BasicTable = () => {
+export const FilteringTable = () => {
 	const columns = useMemo(() => COLUMNS, []);
 	const data = useMemo(() => MOCK_DATA, []);
-	//STEP 1: GET THE DATA(MOCK DATA, DATABASE ...)
-	//STEP 2: DEFINE THE COLUMN YOU WANT TO SHOW TO USERS
 
-	// STEP 3: CREATE AN INSTANCE OF THE TABLE
-	/* const tableInstance = useTable({
-		columns,
-		data,
-	});
-
-	const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-		tableInstance; */
+	const defaultColumn = useMemo(() => {
+		return {
+			Filter: ColumnFilter,
+		};
+	}, []);
 
 	const {
 		getTableProps,
@@ -26,20 +23,32 @@ export const BasicTable = () => {
 		footerGroups,
 		rows,
 		prepareRow,
-	} = useTable({
-		columns,
-		data,
-	});
+		state,
+		setGlobalFilter,
+	} = useTable(
+		{
+			columns,
+			data,
+			defaultColumn,
+		},
+		useFilters,
+		useGlobalFilter
+	);
+
+	const { globalFilter } = state;
 
 	return (
-		// STEP 4: DEFINE A BASIC STRUCTURE USING HTML
 		<React.Fragment>
+			<GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
 			<table {...getTableProps()}>
 				<thead>
 					{headerGroups.map((headerGroup) => (
 						<tr {...headerGroup.getHeaderGroupProps()}>
 							{headerGroup.headers.map((column) => (
-								<th {...column.getHeaderProps()}>{column.render('Header')}</th>
+								<th {...column.getHeaderProps()}>
+									{column.render('Header')}
+									<div>{column.canFilter ? column.render('Filter') : null}</div>
+								</th>
 							))}
 						</tr>
 					))}
